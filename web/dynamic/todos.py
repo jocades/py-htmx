@@ -1,4 +1,5 @@
 from dominate.tags import table, thead, tbody, tr, td, th, _input, div, label
+import re
 
 
 class Todo:
@@ -13,47 +14,51 @@ class Todo:
     def __str__(self):
         return f'{self.title} {"[x]" if self.done else "[ ]"}'
 
-# {% for todo in todos %}
-# <tr class="text-center text-gray-500">
-#   <td class="t-row">{{ todo.id }}</td>
-#   <td class="t-row">{{ todo.title }}</td>
-#   <td class="t-row">
-#     <input
-#       name="done"
-#       type="checkbox"
-#       hx-post="/todos/{{ todo.id }}/toggle"
-#       {%
-#       if
-#       todo.done
-#       %}
-#       checked
-#       {%
-#       endif
-#       %}
-#     />
-#   </td>
-# </tr>
-# {% endfor %}
+
+def cn(classes: dict[str, bool]) -> str:
+    return ' '.join([cls for cls, cond in classes.items() if cond])
+
+
+# converter function to transrom any element passed from dominate to transform any atrribute that starts with hx_ to
+# data-hx-*
+def hx_attrs(attrs: dict[str, str]):
+    return {re.sub(r'^hx_', 'data-hx-', k): v for k, v in attrs.items()}
+
+
+# wrapper to transrom any dominate element and accept hx_ attributes
+def hx_element(element):
+    def wrapper(*args, **kwargs):
+        return element(*args, **hx_attrs(kwargs))
+
+    return wrapper
+
+
+my_div = hx_element(div)
+print(my_div(id='my-div', hx_post='/todos', hx_target='#todos', hx_swap='outerHTML'))
+
+# now for every element do this
+
+
+def checkbox(*args, **kwargs):
+    kwargs['type'] = 'checkbox'
+    if kwargs.get('checked', False):
+        kwargs['checked'] = 'checked'
+    return _input(*args, **kwargs)
 
 
 def todo_item(todo: Todo):
-    input_e = _input(
-        name='done',
-        _type='checkbox',
-        data_hx_post=f'/todos/{todo.id}/toggle',
-        data_hx_target=f'#todo-{todo.id}',
-        data_hx_swap='outerHTML',
+    box = div(id=f'todo-{todo.id}', cls='flex px-4 py-2 rounded border border-gray-400 items-center justify-between')
+    box.add(
+        label(todo.title, cls=cn({'line-through text-gray-500': todo.done})),
+        checkbox(
+            name='done',
+            data_hx_post=f'/todos/{todo.id}/toggle',
+            data_hx_target=f'#todo-{todo.id}',
+            data_hx_swap='outerHTML',
+            checked=todo.done
+        )
     )
-
-    if todo.done:
-        input_e['checked'] = 'checked'
-
-    return div(
-        label(todo.title, cls=f'{'line-through text-gray-500' if todo.done else ''}'),
-        input_e,
-        id=f'todo-{todo.id}',
-        cls='flex px-4 py-2 rounded border border-gray-400 items-center justify-between'
-    )
+    return box
 
 
 def todo_row(todo: Todo):
@@ -65,7 +70,7 @@ def todo_row(todo: Todo):
     )
 
 
-@table(id='todos', cls='p-2')
+@ table(id='todos', cls='p-2')
 def todo_table(todos: list[Todo]):
     with thead(cls='text-lg font-semibold'):
         tr(

@@ -167,6 +167,10 @@ def and_(*args: str):
     return ' AND '.join(args)
 
 
+def or_(*args: str):
+    return ' OR '.join(args)
+
+
 def eq(f: str, v: str | int):
     return f'{f} = {v}'
 

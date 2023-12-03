@@ -1,31 +1,21 @@
 import re
 from pathlib import Path
 
-# trying out this concept
-# 'index.html'
-# ---
-# from fragments import component
-# ---
-# <!DOCTYPE html>
-# ...
-# {{ component }}
-
-
-# then this functino will be called with the corred arguemnts needed to render the table
 
 html = '''
 ---
 from fragments import component
 ---
+<html>
+  <body>
+    {{ component(name) }}
 
-<!DOCTYPE html>
-<body>
-    {{ component }}
+    {{ fragmnets.component(name) }}
 
-    {{ block 'fragments:component' }}
-
-    <template id="fragments.component(name, age)">
-</body>
+    <fragment x-py="fragments.component(name)" />
+    <fragment ="fragments.component(**kwargs)" />
+  </body>
+</html>
 '''
 
 
@@ -71,16 +61,107 @@ for block in blocks:
 # print(rendered)
 
 
-# now do the same but with the <template> tags
-# get the module and function name
-templates = re.findall(r'<template id="(.*)">', html)
-# print(templates)
+# THIS IS THE ONE!!!
 # t = 'fragments.component(todo)' # 'fragments = file, component = function, todo = kwargs'
+# add the possibily to grab blocks and fragments
+test = '''
+    <fragment x-py="fragments.component(name, age)" />
+    <fragment id="fragments.component(**kwargs)" />
+
+   <block x-py="todo-row">
+      <tr>
+        <td class="t-row">{{ todo.id }}</td>
+        <td class="t-row">{{ todo.title }}</td>
+        <td class="t-row">{{ todo.done }}</td>
+      </tr>
+    </block>
+
+    {{ block 'todo-row' }}
+      <tr>
+        <td class="t-row">{{ todo.id }}</td>
+        <td class="t-row">{{ todo.title }}</td>
+        <td class="t-row">{{ todo.done }}</td>
+      </tr>
+    {{ end }}
+
+'''
+
 kwargs = {'name': 'Jordi'}
+with_py = re.findall(r'<fragment x-py="(.*)" />', test)
 
-for template in templates:
-    module, func = template.split('.')
-    print('TEMPLATE', module, func)
 
-    # rendered = html.replace(f'<template id="{template}">', str(fragment(**kwargs)))
+# for py in with_py:
+#     print(py)
+#     module, func = py.split('.')
+#     # remove the parenthesis get the func and then the args
+#     func, args = func.split('(')
+#     args = args.replace(')', '').split(',')
+#     # get the args inside the '()' separated by ',' clean whitespace
+#     print('PY', module, func, args)
+#     mod = __import__(module)
+#     fragment = getattr(mod, func)
+#
+#     # match the args with the kwargs
+#     for arg in args:
+#         if arg.strip() in kwargs:
+#             kwargs[arg.strip()] = kwargs[arg.strip()]
+#         else:
+#             kwargs[arg.strip()] = None
+#
+#     print(kwargs)
+#     rendered = test.replace(f'<fragment x-py="{py}" />', str(fragment(**kwargs)))
+# print(rendered)
+
+# get the blocks, and replace them with the rendered html
+# if the data givne is list, then render the block for each item
+
+# blocks to be returned for htmx to consume, the 'x-py' attribute is the id being requested
+# blocks = re.findall(r'<block x-py="(.*)">(.*)</block>', test, re.DOTALL)
+# for block in blocks:
+#     id, html = block
+#     print('ID', id)
+#     print('HTML', html)
+
+# get the {{ block }} and {{ end }} and replace them with the rendered html
+# the id is the name of the block which is in quotes
+blocks = re.findall(r'{{ block \'(.*)\' }}(.*){{ end }}', test, re.DOTALL)
+print(blocks)
+
+external_data = {
+    'todo-row': [{'id': 1, 'title': 'Buy milk', 'done': False},
+                 {'id': 2, 'title': 'Buy eggs', 'done': False}]
+}
+
+for block in blocks:
+    id, html = block
+    print('ID', id)
+    print('HTML', html)
+
+    # create a dict with the keys being the keys of the dict being passes
+    # i.e: {{ block 'todo-row' }} <tr> <td>{{ todo.id }}</td> </tr> {{ end }}
+    # todo-row = {'id': 1, 'title': 'Buy milk', 'done': False}
+
+
+# kwargs = {'name': 'Jordi', 'age': 30}
+# with_id = re.findall(r'<fragment id="(.*)" />', test)
+#
+# for id in with_id:
+#     print(id)
+#     module, func = id.split('.')
+#     # remove the parenthesis get the func and then the args
+#     func, args = func.split('(')
+#     args = args.replace(')', '').split(',')
+#     # get the args inside the '()' separated by ',' clean whitespace
+#     print('ID', module, func, args)
+#     mod = __import__(module)
+#     fragment = getattr(mod, func)
+#     for arg in args:
+#         if arg.strip() in kwargs:
+#             kwargs[arg.strip()] = kwargs[arg.strip()]
+#
+#     print(kwargs)
+#     rendered = test.replace(f'<fragment id="{id}" />', str(fragment(**kwargs)))
+# print(rendered)
+
+
 # print(rendered)

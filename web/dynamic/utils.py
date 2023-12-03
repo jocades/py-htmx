@@ -59,3 +59,6 @@ class HTMPY:
             headers=headers,
             media_type=media_type
         )
+
+
+# now for every element do this

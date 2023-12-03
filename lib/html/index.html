@@ -3,8 +3,18 @@ from fragments import component
 ---
 
 <html>
-<head>
-    <body>
-      {{ component }}
-    </body>
+  <body>
+    {{ component(name) }}
+
+    <fragment x-py="fragments.component(name)" />
+    <fragment id="fragments.component(name, **kwargs)" />
+
+    <block x-py="todo-row">
+      <tr>
+        <td class="t-row">{{ todo.id }}</td>
+        <td class="t-row">{{ todo.title }}</td>
+        <td class="t-row">{{ todo.done }}</td>
+      </tr>
+    </block>
+  </body>
 </html>
