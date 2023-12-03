@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HTMPY</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <style type="text/tailwindcss">
+      @layer components {
+        .btn {
+          @apply px-4 py-2 rounded text-white bg-zinc-500 hover:bg-zinc-500/80 transition-colors duration-200;
+        }
+
+        .t-row {
+          @apply p-1 border border-gray-400;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-zinc-300">
+    <main class="relative flex flex-col min-h-screen py-8">
+      <div class="container mx-auto space-y-20">
+        <section class="flex flex-col items-center justify-center gap-2">
+          <h1 class="font-bold text-6xl tracking-tight">
+            Python + HTMX + Alpine JS
+          </h1>
+          <p class="text-lg text-gray-500">
+            A
+            <span class="text-gray-600 font-semibold">simple</span>
+            example
+            <span class="text-gray-600 font-semibold">without</span>
+            a single line of
+            <span class="text-gray-600 font-semibold"> JavaScript</span>
+          </p>
+        </section>
+
+        <section class="flex flex-col items-center justify-center gap-2">
+          <h2 class="font-bold text-4xl tracking-tight">HTMX</h2>
+          <code class="text-gray-500">
+            &lt;button hx-get="/random"&gt;0&lt;/button&gt;
+          </code>
+          <button hx-get="/random" class="btn">0</button>
+        </section>
+
+        <section class="flex flex-col items-center justify-center space-y-2">
+          <h2 class="font-bold text-4xl tracking-tight">Alpine JS</h2>
+          <pre>
+            <code class='text-gray-500'>
+              &lt;div x-data="{ count: 0 }"&gt;
+                &lt;button @click="count--"&gt;Decrement&lt;/button&gt;
+                &lt;span x-text="count"&gt;&lt;/span&gt;
+                &lt;button x-on:click="count++"&gt;Increment&lt;/button&gt;
+              &lt;/div&gt;
+            </code>
+          </pre>
+          <div x-data="{ count: 0 }" class="flex items-center gap-2">
+            <button @click="count--" class="btn">Decrement</button>
+            <span x-text="count" class="text-2xl"></span>
+            <button x-on:click="count++" class="btn">Increment</button>
+          </div>
+        </section>
+
+        <section class="flex flex-col space-y-2 max-w-md">
+          <h2 class="font-bold text-4xl tracking-tight">Todos</h2>
+          {{ todos }}
+        </section>
+
+        <section class="flex flex-col max-w-2xl">
+          <h2 class="font-bold text-4xl tracking-tight">Add Todo</h2>
+          <pre>
+            <code class='text-gray-500'>
+              def todo_row(todo: Todo):
+                  return tr(
+                      td(todo.id, cls='t-row'),
+                      td(todo.title, cls='t-row'),
+                      td(todo.done, cls='t-row'),
+                      cls='text-center text-gray-500'
+                  )
+            </code>
+          </pre>
+          <form
+            id="add-todo"
+            class="flex flex-grow gap-2"
+            hx-post="/todos"
+            hx-target="#todos"
+            hx-swap="beforeend"
+          >
+            <input
+              id="title"
+              name="title"
+              type="text"
+              placeholder="Title"
+              class="border border-gray-400 rounded px-2 py-1 flex-grow"
+            />
+            <button class="btn">Add</button>
+          </form>
+          <table id="todos" class="p-2">
+            <thead class="text-lg font-semibold">
+              <tr>
+                <th class="t-row">id</th>
+                <th class="t-row">title</th>
+                <th class="t-row">done</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{ todo_rows }}
+            </tbody>
+          </table>
+          <div clas="flex flex-row justify-between">
+            <button
+              class="btn self-start"
+              hx-get="/todos"
+              hx-target="#todos"
+              hx-swap="beforeend"
+            >
+              Load more
+            </button>
+          </div>
+        </section>
+
+        <section class="flex flex-col space-y-2">
+          <h2 class="font-bold text-4xl tracking-tight">Add Todo</h2>
+          <form
+            id="add-todo"
+            class="flex flex-grow gap-2"
+            hx-post="/todos"
+            hx-target="#todos"
+            hx-swap="beforeend"
+            class="flex"
+          >
+            <input
+              id="title"
+              name="title"
+              type="text"
+              placeholder="Title"
+              class="border border-gray-400 rounded px-2 py-1 flex-grow"
+            />
+            <button class="btn">Add</button>
+          </form>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

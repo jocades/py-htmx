@@ -1,0 +1,21 @@
+{% for todo in todos %}
+<tr class="text-center text-gray-500">
+  <td class="t-row">{{ todo.id }}</td>
+  <td class="t-row">{{ todo.title }}</td>
+  <td class="t-row">
+    <input
+      name="done"
+      type="checkbox"
+      hx-post="/todos/{{ todo.id }}/toggle"
+      {%
+      if
+      todo.done
+      %}
+      checked
+      {%
+      endif
+      %}
+    />
+  </td>
+</tr>
+{% endfor %}

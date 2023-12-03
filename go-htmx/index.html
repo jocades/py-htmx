@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Doc</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src='http://cdn.tailwindcss.com/'></script>
+    <script src="https://unpkg.com/htmx.org@1.9.9" integrity="sha384-QFjmbokDn2DjBjq+fM+8LUIVrAgqcNW2s0PjAxHETgRn9l4fvX31ZxDxvwQnyMOX" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <main class='flex flex-col items-center justify-center container mx-auto'>
+      <h1 class='text-6xl font-bold'>Hello Word</h1>
+
+      <button class='px-2 py-1 bg-red-200 rounded' hx-get='/random'>0</button>
+
+      {{ range .Todos }}
+        <p>{{ .Title }} - {{ .Done }}</p>
+      {{ end }}
+
+    </main>
+  </body>
+</html>

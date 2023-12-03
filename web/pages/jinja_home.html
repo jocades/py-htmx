@@ -1,0 +1,142 @@
+<html>
+  <head>
+    <title>Python + HTMX + Tailwind</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+    <script src="{{ url_for('static', path='script.js') }}" defer></script>
+    <style type="text/tailwindcss">
+      @layer components {
+        .btn {
+          @apply bg-zinc-500 hover:bg-zinc-500/80 transition-colors duration-200 text-white py-2 px-4 rounded;
+        }
+
+        .t-row {
+          @apply border border-gray-400 p-1;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-zinc-300">
+    <main class="relative flex flex-col min-h-screen py-8">
+      <div class="container mx-auto space-y-20">
+        <section class="flex flex-col items-center justify-center gap-2">
+          <h1 class="font-bold text-6xl tracking-tight">
+            Python + HTMX + Tailwind
+          </h1>
+          <p class="text-lg text-gray-500">
+            A
+            <span class="text-gray-600 font-semibold">simple</span>
+            example
+            <span class="text-gray-600 font-semibold">without</span>
+            a single line of
+            <span class="text-gray-600 font-semibold"> JavaScript</span>
+          </p>
+        </section>
+
+        <section class="flex flex-col items-center justify-center gap-2">
+          <h2 class="font-bold text-4xl tracking-tight">Random</h2>
+          <code class="text-gray-500">
+            &lt;button hx-get="/random"&gt;0&lt;/button&gt;
+          </code>
+          <button hx-get="/random" class="btn">0</button>
+        </section>
+
+        <section class="flex flex-col space-y-2">
+          <h2 class="font-bold text-4xl tracking-tight">Todos</h2>
+          {% for todo in todos %}
+          <div
+            id="todo-{{ todo.id }}"
+            class="flex px-4 py-2 border border-gray-400 rounded items-center justify-between"
+          >
+            <label class="{% if todo.done %} line-through {% endif %}">
+              {{ todo.title }}
+            </label>
+            <input
+              name="done"
+              type="checkbox"
+              value="0"
+              hx-post="/todos/{{ todo.id }}/toggle"
+              hx-target="#todo-{{ todo.id }}"
+              hx-swap="outerHTML"
+              {%
+              if
+              todo.done
+              %}
+              checked
+              {%
+              endif
+              %}
+            />
+          </div>
+          {% endfor %}
+        </section>
+
+        <section class="flex flex-col">
+          <h2 class="font-bold text-4xl tracking-tight">Add Todo</h2>
+          <form
+            id="add-todo"
+            class="flex flex-grow gap-2"
+            hx-post="/todos"
+            hx-target="#todos"
+            hx-swap="beforeend"
+            class="flex"
+          >
+            <input
+              id="title"
+              name="title"
+              type="text"
+              placeholder="Title"
+              class="border border-gray-400 rounded px-2 py-1 flex-grow"
+            />
+            <button class="btn">Add</button>
+          </form>
+          <table id="todos" class="border p-2 rounded">
+            <thead class="text-lg font-semibold">
+              <tr>
+                <th class="t-row">id</th>
+                <th class="t-row">title</th>
+                <th class="t-row">done</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% include 'components/table-rows.html' %}
+            </tbody>
+          </table>
+          <div clas="flex flex-row justify-between">
+            <button
+              class="btn self-start"
+              hx-get="/todos"
+              hx-target="#todos"
+              hx-swap="beforeend"
+            >
+              Load more
+            </button>
+          </div>
+        </section>
+
+        <section class="flex flex-col space-y-2">
+          <h2 class="font-bold text-4xl tracking-tight">Add Todo</h2>
+          <form
+            id="add-todo"
+            class="flex flex-grow gap-2"
+            hx-post="/todos"
+            hx-target="#todos"
+            hx-swap="beforeend"
+            class="flex"
+          >
+            <input
+              id="title"
+              name="title"
+              type="text"
+              placeholder="Title"
+              class="border border-gray-400 rounded px-2 py-1 flex-grow"
+            />
+            <button class="btn">Add</button>
+          </form>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

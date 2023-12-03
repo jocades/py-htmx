@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "py-htmx"
+version = "0.1.0"
+description = ""
+authors = ["Jordi Calafat <jcalafat97@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["all"], version = "^0.104.1"}
+dominate = "^2.9.0"
+rich = "^13.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
