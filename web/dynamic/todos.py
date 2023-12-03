@@ -29,17 +29,19 @@ def hx_element[T](element: T) -> T:
         return element(*args, **hx_attrs(kwargs))   # type: ignore
     return wrapper  # type: ignore
 
-# elements = ['div', 'label', 'input', 'table', 'thead', 'tbody', 'tr', 'td', 'th']
-#
-# for element in elements:
-#     globals()[element] = hx_element(globals()[element])
+
+elements = ['div', 'label', 'input_', 'table', 'thead', 'tbody', 'tr', 'td', 'th',
+            'span', 'a', 'button', 'img']
+
+for element in elements:
+    globals()[element] = hx_element(globals()[element])
 
 
 def checkbox(*args, **kwargs):
     kwargs['type'] = 'checkbox'
     if kwargs.get('checked', False):
         kwargs['checked'] = 'checked'
-    return _input(*args, **kwargs)
+    return input_(*args, **kwargs)
 
 
 def todo_item(todo: Todo):
@@ -48,9 +50,9 @@ def todo_item(todo: Todo):
         label(todo.title, cls=cn({'line-through text-gray-500': todo.done})),
         checkbox(
             name='done',
-            data_hx_post=f'/todos/{todo.id}/toggle',
-            data_hx_target=f'#todo-{todo.id}',
-            data_hx_swap='outerHTML',
+            hx_post=f'/todos/{todo.id}/toggle',
+            hx_target=f'#todo-{todo.id}',
+            hx_swap='outerHTML',
             checked=todo.done
         )
     )
