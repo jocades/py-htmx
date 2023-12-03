@@ -1,4 +1,5 @@
-from dominate.tags import table, thead, tbody, tr, td, th, _input, div, label
+from dominate.tags import *
+from typing import Any
 import re
 
 
@@ -15,28 +16,23 @@ class Todo:
         return f'{self.title} {"[x]" if self.done else "[ ]"}'
 
 
-def cn(classes: dict[str, bool]) -> str:
+def cn(classes: dict[str, Any]) -> str:
     return ' '.join([cls for cls, cond in classes.items() if cond])
 
 
-# converter function to transrom any element passed from dominate to transform any atrribute that starts with hx_ to
-# data-hx-*
 def hx_attrs(attrs: dict[str, str]):
     return {re.sub(r'^hx_', 'data-hx-', k): v for k, v in attrs.items()}
 
 
-# wrapper to transrom any dominate element and accept hx_ attributes
-def hx_element(element):
+def hx_element[T](element: T) -> T:
     def wrapper(*args, **kwargs):
-        return element(*args, **hx_attrs(kwargs))
+        return element(*args, **hx_attrs(kwargs))   # type: ignore
+    return wrapper  # type: ignore
 
-    return wrapper
-
-
-my_div = hx_element(div)
-print(my_div(id='my-div', hx_post='/todos', hx_target='#todos', hx_swap='outerHTML'))
-
-# now for every element do this
+# elements = ['div', 'label', 'input', 'table', 'thead', 'tbody', 'tr', 'td', 'th']
+#
+# for element in elements:
+#     globals()[element] = hx_element(globals()[element])
 
 
 def checkbox(*args, **kwargs):
