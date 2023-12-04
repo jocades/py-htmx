@@ -21,6 +21,12 @@
         }
       }
     </style>
+    <style>
+      tr.htmx-swapping tr {
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+      }
+    </style>
   </head>
   <body class="bg-zinc-300">
     <main class="relative flex flex-col min-h-screen py-8">
@@ -36,6 +42,7 @@
             <span class="text-gray-600 font-semibold">without</span>
             a single line of
             <span class="text-gray-600 font-semibold"> JavaScript</span>
+            <span class="text-zinc-400/60"> (almost) </span>
           </p>
         </section>
 
@@ -65,21 +72,28 @@
           </div>
         </section>
 
-        <section class="flex flex-col space-y-2 max-w-md">
-          <h2 class="font-bold text-4xl tracking-tight">Todos</h2>
-          {{ todos }}
+        <section class="flex flex-col items-center justify-center gap-2">
+          <button x-data x-on:click="console.log('click')" class="btn">
+            Click me
+          </button>
         </section>
 
-        <section class="flex flex-col max-w-2xl">
+        <section x-data="{ page: 0 }" class="flex flex-col max-w-2xl">
           <h2 class="font-bold text-4xl tracking-tight">Add Todo</h2>
           <pre>
             <code class='text-gray-500'>
               def todo_row(todo: Todo):
                   return tr(
                       td(todo.id, cls='t-row'),
-                      td(todo.title, cls='t-row'),
-                      td(todo.done, cls='t-row'),
-                      cls='text-center text-gray-500'
+                      td(todo.title, cls=cn('t-row', {'line-through text-gray-500': todo.done})),
+                      td(checkbox(
+                          hx_post=f'/todos/{todo.id}/toggle',
+                          hx_target=f'#todo-{todo.id}',
+                          hx_swap='outerHTML',
+                          checked=todo.done
+                      ), cls='t-row'),
+                      id=f'todo-{todo.id}',
+                      cls='text-center'
                   )
             </code>
           </pre>
@@ -88,7 +102,8 @@
             class="flex flex-grow gap-2"
             hx-post="/todos"
             hx-target="#todos"
-            hx-swap="beforeend"
+            hx-swap="afterbegin"
+            hx-on::after-request="this.reset()"
           >
             <input
               id="title"
@@ -109,9 +124,10 @@
             </thead>
             <tbody>
               {{ todo_rows }}
+              <!-- <fragment x-py="todos.todo_row(todo)" /> -->
             </tbody>
           </table>
-          <div clas="flex flex-row justify-between">
+          <div class="flex w-full flex-row justify-between">
             <button
               class="btn self-start"
               hx-get="/todos"
@@ -120,29 +136,17 @@
             >
               Load more
             </button>
+            <form hx-data="{ page: 0 }" class="flex flex-grow gap-2">
+              <button class="btn self-end">Previous</button>
+              <span x-text="page" class="text-2xl"></span>
+              <button class="btn self-end">Next</button>
+            </form>
           </div>
         </section>
 
-        <section class="flex flex-col space-y-2">
-          <h2 class="font-bold text-4xl tracking-tight">Add Todo</h2>
-          <form
-            id="add-todo"
-            class="flex flex-grow gap-2"
-            hx-post="/todos"
-            hx-target="#todos"
-            hx-swap="beforeend"
-            class="flex"
-          >
-            <input
-              id="title"
-              name="title"
-              type="text"
-              placeholder="Title"
-              class="border border-gray-400 rounded px-2 py-1 flex-grow"
-            />
-            <button class="btn">Add</button>
-          </form>
-        </section>
+        <!-- <section class="flex flex-col space-y-2 max-w-md"> -->
+        <!--   <h2 class="font-bold text-4xl tracking-tight">Todos</h2> -->
+        <!-- </section> -->
       </div>
     </main>
   </body>

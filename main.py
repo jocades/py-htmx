@@ -43,10 +43,9 @@ htmpy = HTMPY('./web/pages')
 # pages
 @app.get('/', tags=['pages'], response_class=HTMLResponse)
 async def root():
-    data = c.execute('SELECT * FROM todo').fetchall()
+    data = c.execute('SELECT * FROM todo ORDER BY id DESC LIMIT 5').fetchall()
     return htmpy(
         'home.html',
-        todos=[todo_item(row_factory(row, Todo)) for row in data],
         todo_rows=[todo_row(row_factory(row, Todo)) for row in data]
     )
 
@@ -84,6 +83,14 @@ async def create_todo(title: str = Form(...)):
         ))
     )
 
+@app.post('/todos/filter', tags=['api'])
+async def filter_todos(page: int = Form(...), sort: str = Form(...)):
+    res = c.execute(f'SELECT * FROM todo ORDER BY {sort} DESC LIMIT 5 OFFSET {page * 5}')
+    todos = [row_factory(row, Todo) for row in res.fetchall()]
+    return htmpy.fragment(
+        todo_row(todo) for todo in todos
+    )
+
 
 @app.post('/todos/{id}/toggle', tags=['api'])
 async def toggle_todo_by_id(id: int):
@@ -92,10 +99,10 @@ async def toggle_todo_by_id(id: int):
     todo.done = not todo.done
     c.execute('UPDATE todo SET done = ? WHERE id = ?', (todo.done, todo.id))
     con.commit()
-    return HTMXResponse(todo_item(todo))
+    return HTMXResponse(todo_row(todo))
 
 
-@app.delete('/todos/{id}', status_code=204, tags=['api'])
+@app.delete('/todos/{id}', response_class=HTMLResponse, status_code=200, tags=['api'])
 async def delete_todo_by_id(id: int):
     c.execute('DELETE FROM todo WHERE id = ?', (id,))
     con.commit()

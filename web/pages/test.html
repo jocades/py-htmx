@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    # for todo in todos
+    <div id="todo-{{ todo.id }}">
+      <label>{{ todo.title }}</label>
+      <input
+        name="done"
+        type="checkbox"
+        value="0"
+        hx-post="/todos/{{ todo.id }}/toggle"
+        hx-trigger="changed changed:blur"
+        hx-swap="outerHTML"
+        hx-target="#todo-{{ todo.id }}"
+      />
+      # endfor
+  </body>
+</html>

@@ -1,4 +1,5 @@
 from dominate.tags import *
+
 from typing import Any
 import re
 
@@ -16,12 +17,27 @@ class Todo:
         return f'{self.title} {"[x]" if self.done else "[ ]"}'
 
 
-def cn(classes: dict[str, Any]) -> str:
-    return ' '.join([cls for cls, cond in classes.items() if cond])
+def cn(*classes: str | dict[str, Any]) -> str:
+    return ' '.join(
+        cls if isinstance(cls, str)
+        else ' '.join([k for k, v in cls.items() if v])
+        for cls in classes
+    )
 
 
 def hx_attrs(attrs: dict[str, str]):
-    return {re.sub(r'^hx_', 'data-hx-', k): v for k, v in attrs.items()}
+    '''
+    hx_* -> data-hx-*
+    x_* -> data-x-*
+    '''
+    x_attrs = {}
+    for k, v in attrs.items():
+        if k.startswith('hx_'):
+            k = k.replace('hx_', 'data-hx-')
+        elif k.startswith('x_'):
+            k = k.replace('x_', 'data-x-')
+        x_attrs[k] = v
+    return x_attrs
 
 
 def hx_element[T](element: T) -> T:
@@ -39,7 +55,7 @@ for element in elements:
 
 def checkbox(*args, **kwargs):
     kwargs['type'] = 'checkbox'
-    if kwargs.get('checked', False):
+    if kwargs.get('checked'):
         kwargs['checked'] = 'checked'
     return input_(*args, **kwargs)
 
@@ -51,7 +67,8 @@ def todo_item(todo: Todo):
         checkbox(
             name='done',
             hx_post=f'/todos/{todo.id}/toggle',
-            hx_target=f'#todo-{todo.id}',
+            # hx_target=f'#todo-{todo.id}',
+            hx_target='closest div',
             hx_swap='outerHTML',
             checked=todo.done
         )
@@ -62,9 +79,22 @@ def todo_item(todo: Todo):
 def todo_row(todo: Todo):
     return tr(
         td(todo.id, cls='t-row'),
-        td(todo.title, cls='t-row'),
-        td(todo.done, cls='t-row'),
-        cls='text-center text-gray-500'
+        td(todo.title, cls=cn('t-row', {'line-through text-gray-500': todo.done})),
+        td(checkbox(
+            hx_post=f'/todos/{todo.id}/toggle',
+            hx_target=f'#todo-{todo.id}',
+            hx_swap='outerHTML',
+            checked=todo.done
+        ), 
+        button('X',
+            hx_delete=f'/todos/{todo.id}',
+            hx_target=f'#todo-{todo.id}',
+            hx_swap='outerHTML',
+            cls='text-red-500 ml-2' ),
+        cls='t-row'),
+
+        id=f'todo-{todo.id}',
+        cls='text-center'
     )
 
 
